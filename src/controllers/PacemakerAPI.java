@@ -1,23 +1,23 @@
 package controllers;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import com.google.common.base.Optional;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
+import models.Activity;
+import models.Location;
 import models.User;
 
 public class PacemakerAPI
 {
- // private List <User> users = new ArrayList<User>();
- // private Map<String, User> users = new HashMap<String, User>();
- // private Map<String, User> users = new HashMap<>();
+  private Map<Long,   User>   userIndex       = new HashMap<>();
+  private Map<String, User>   emailIndex      = new HashMap<>();
+  private Map<Long, Activity> activitiesIndex = new HashMap<>();
 
-	  private Map<Long, User>     userIndex       = new HashMap<>();
-	  private Map<String, User>   emailIndex      = new HashMap<>();	
-	
-	
+  public PacemakerAPI()
+  {
+  }
+
   public Collection<User> getUsers ()
   {
     return userIndex.values();
@@ -25,8 +25,8 @@ public class PacemakerAPI
 
   public  void deleteUsers() 
   {
-	  userIndex.clear();
-	  emailIndex.clear();
+    userIndex.clear();
+    emailIndex.clear();
   }
 
   public User createUser(String firstName, String lastName, String email, String password) 
@@ -46,13 +46,35 @@ public class PacemakerAPI
   {
     return userIndex.get(id);
   }
-  
+
   public void deleteUser(Long id) 
   {
     User user = userIndex.remove(id);
     emailIndex.remove(user.email);
   }
-  
-  
-  
-} 
+
+  public void createActivity(Long id, String type, String location, double distance)
+  {
+    Activity activity = new Activity (type, location, distance);
+    Optional<User> user = Optional.fromNullable(userIndex.get(id));
+    if (user.isPresent())
+    {
+      user.get().activities.put(activity.id, activity);
+      activitiesIndex.put(activity.id, activity);
+    }
+  }
+
+  public Activity getActivity (Long id)
+  {
+    return activitiesIndex.get(id);
+  }
+
+  public void addLocation (Long id, float latitude, float longitude)
+  {
+    Optional<Activity> activity = Optional.fromNullable(activitiesIndex.get(id));
+    if (activity.isPresent())
+    {
+      activity.get().route.add(new Location(latitude, longitude));
+    }
+  }
+}

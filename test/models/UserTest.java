@@ -21,8 +21,15 @@ public class UserTest
     assertEquals ("simpson",             homer.lastName);
     assertEquals ("homer@simpson.com",   homer.email);   
     assertEquals ("secret",              homer.password);   
+ 
   }
 
+  @Test
+  public void differentObjects()  // rlacey
+  {
+	  assertSame (users[1], users[1]);   
+  }
+  
   @Test
   public void testIds()
   {
