@@ -1,16 +1,40 @@
 package controllers;
 
+import static models.Fixtures.activities;
+import static models.Fixtures.locations;
+
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.List;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import models.Activity;
 import models.User;
+import utils.Serializer;
+import utils.XMLSerializer;
 
 public class Main // tdd02
 {
   public static void main(String[] args) throws IOException
   {    
-	    PacemakerAPI pacemakerAPI = new PacemakerAPI();
+	   File  datastore = new File("datastore4.xml");
+	    Serializer serializer = new XMLSerializer(datastore);
+
+	    PacemakerAPI pacemakerAPI = new PacemakerAPI(serializer);
+	    if (datastore.isFile())
+	    {
+	      try {
+			pacemakerAPI.load();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    }
 
 	    pacemakerAPI.createUser("Bart", "Simpson",   "bart@simpson.com", "secret");
 	    pacemakerAPI.createUser("Homer", "Simpson",  "homer@simpson.com", "secret");
@@ -20,11 +44,14 @@ public class Main // tdd02
 	    System.out.println(users);
 
 	    User homer = pacemakerAPI.getUserByEmail("homer@simpson.com");
-	    System.out.println(homer);
+	    pacemakerAPI.createActivity(homer.id, "walk", "tramore", 88888);
 
-	    pacemakerAPI.deleteUser(homer.id);
-	    users = pacemakerAPI.getUsers();
-	    System.out.println(users);
+	    try {
+			pacemakerAPI.store();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 	    
   }
 }
 
